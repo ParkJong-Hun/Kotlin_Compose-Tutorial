@@ -24,12 +24,12 @@ class MainActivity : ComponentActivity() {
             Kotlin_ComposeTutorialTheme {
                 //일반적인 공간 뷰
                 Surface(modifier = Modifier.fillMaxSize(), color = MaterialTheme.colors.background/*테마 파일의 컬러를 이용해 전체 배경 색 지정*/) {
-                    //여러 뷰를 세로로 배치
+                    //여러 뷰를 가로로 배치
                     Row {
                         Text("Hello")//텍스트 뷰
                         Spacer(modifier = Modifier.width(16.dp)/*길이를 조정할 때 사용*/)//빈 공간 뷰
                         Text("World!")
-                        //여러 뷰를 가로로 배치
+                        //여러 뷰를 세로로 배치
                         Column(
                             modifier = Modifier
                                 .background(color = Color.LightGray)/*배경 색 지정*/
