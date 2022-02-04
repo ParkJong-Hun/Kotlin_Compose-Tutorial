@@ -1,102 +1,58 @@
 package com.example.kotlin_compose_tutorial
 
 import android.os.Bundle
+import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
-import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.Card
-import androidx.compose.material.Icon
-import androidx.compose.material.IconButton
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Favorite
-import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.runtime.Composable
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.material.*
 import androidx.compose.runtime.mutableStateOf
-//by 사용 가능
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.ExperimentalComposeUiApi
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.unit.dp
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import kotlinx.coroutines.launch
 
-//chapter5
+//chapter6
+@ExperimentalComposeUiApi
 class MainActivity : ComponentActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContent {
-            //전역에서 관리
-            var isFavorite by rememberSaveable {
-                mutableStateOf(false)
-            }
-            ImageCard(
-                modifier = Modifier
-                    .fillMaxWidth(0.5f)/*fraction: 전체에서의 비율*/
-                    .padding(16.dp),
-                isFavorite = isFavorite,
-            ) { favorite ->
-                isFavorite = favorite
-            }
-        }
-    }
-}
+            val (text, setValue) = remember {
+                mutableStateOf("")
+            }//구조분해라는 기법을 활용할 수 있다.
+            val scaffoldState = rememberScaffoldState()//scaffold의 상태를 기억
+            val scope = rememberCoroutineScope()//적당한 CoroutineScope를 자동으로 만들어줌
+            val keyboardController = LocalSoftwareKeyboardController.current//키보드 조절
 
-@Composable
-fun ImageCard(
-    modifier: Modifier = Modifier,
-    isFavorite: Boolean,
-    onTabFavorite: (Boolean) -> Unit/*전역에서 값 변경을 위한 Callback*/,
-) {
-    /*Composable에서 상태를 기억하는 변수
-    val isFavorite = remember {
-        mutableStateOf(false)
-    }
-    */
-    /*.value를 생략하기 위해 by 사용
-    var isFavorite by remember {
-        mutableStateOf(false)
-    }
-    */
-    /*항상 메모리에 저장되게 하려면 rememberSaveable
-    var isFavorite by rememberSaveable {
-        mutableStateOf(false)
-    }
-    */
-
-    //카드 모양 뷰
-    Card(
-        modifier = modifier/*외부에서 지정*/,
-        shape = RoundedCornerShape(8.dp)/*모양*/,
-        elevation = 5.dp/*부모 뷰로부터의 높이*/,
-    ) {
-        Box(
-            modifier = Modifier.height(200.dp)
-        ) {
-            //이미지 뷰
-            Image(
-                painter = painterResource(id = R.drawable.poster)/*이미지 자료*/,
-                contentDescription = "poster",
-                contentScale = ContentScale.Crop,//이미지의 크기 비율
-                modifier = Modifier.fillMaxSize()
-            )
-            Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.TopEnd
-            ) {
-                //아이콘 버튼 뷰
-                IconButton(onClick = {
-                    onTabFavorite(!isFavorite)
-                }) {
-                    //아이콘 이미지 뷰
-                    Icon(imageVector = if(isFavorite) Icons.Default.Favorite else Icons.Default.FavoriteBorder/*아이콘 이미지*/,
-                        contentDescription = "favorite",
-                        tint = Color.White/*색상*/
+            //액자 뷰(여러 기능을 활용 가능 ex/ 스낵바)
+            Scaffold {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    //텍스트 입력 뷰
+                    TextField(
+                        value = text,
+                        onValueChange = setValue//값이 입력되었을 때의 이벤트 처리
                     )
+                    //버튼 뷰
+                    Button(onClick = {
+                        scope.launch {
+                            //스낵바 표시
+                            scaffoldState.snackbarHostState.showSnackbar("Hello $text")
+                        }
+                        //키보드 가리기
+                        keyboardController?.hide()
+                    }/*클릭 이벤트 처리*/) {
+                        Text("클릭")
+                    }
                 }
             }
         }
